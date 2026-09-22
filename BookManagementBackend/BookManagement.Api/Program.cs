@@ -1,4 +1,5 @@
 using BookManagement.Api.Data;
+using BookManagement.Api.EndPoints;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,5 +10,6 @@ var app = builder.Build();
 
 app.MigrateDb();
 
+app.MapCategoryEndPoints();
 
 app.Run();

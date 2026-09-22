@@ -1,0 +1,28 @@
+### Get All categories
+GET http://localhost:5101/categories
+
+
+### GEt Categories by id
+GET http://localhost:5101/categories/3
+
+
+### Create a new category
+POST http://localhost:5101/categories
+Content-Type: application/json
+
+{
+    "name": "Math"
+}
+
+
+### Update Category by id
+PUT http://localhost:5101/categories/6
+Content-Type: application/json
+
+{
+    "name": "Mathhh"
+}
+
+
+### Delete Category by id
+DELETE http://localhost:5101/categories/6
