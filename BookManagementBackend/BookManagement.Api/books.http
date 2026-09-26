@@ -3,7 +3,7 @@ GET http://localhost:5101/books
 
 
 ### GET Book By Id
-GET http://localhost:5101/books/6
+GET http://localhost:5101/books/7
 
 
 ### CREATE New Book
@@ -11,19 +11,19 @@ POST http://localhost:5101/books/
 Content-Type: application/json
 
 {
-    "name": "Arrow",
+    "name": "Arroeew",
     "categoryId": 3,
-    "price": 80,
+    "price": 830,
     "publishedDate": "2018-08-01"
 }
 
 
 ### UPDATE book
-PUT http://localhost:5101/books/6
+PUT http://localhost:5101/books/7
 Content-Type: application/json
 
 {
-    "name": "Arrow",
+    "name": "Flash",
     "categoryId": 3,
     "price": 100,
     "publishedDate": "2010-10-10"
@@ -31,4 +31,4 @@ Content-Type: application/json
 
 
 ### DELETE a book
-DELETE http://localhost:5101/books/5
+DELETE http://localhost:5101/books/7

@@ -3,7 +3,7 @@ GET http://localhost:5101/categories
 
 
 ### GEt Categories by id
-GET http://localhost:5101/categories/3
+GET http://localhost:5101/categories/7
 
 
 ### Create a new category
@@ -16,7 +16,7 @@ Content-Type: application/json
 
 
 ### Update Category by id
-PUT http://localhost:5101/categories/6
+PUT http://localhost:5101/categories/7
 Content-Type: application/json
 
 {
@@ -25,4 +25,4 @@ Content-Type: application/json
 
 
 ### Delete Category by id
-DELETE http://localhost:5101/categories/6
+DELETE http://localhost:5101/categories/7
