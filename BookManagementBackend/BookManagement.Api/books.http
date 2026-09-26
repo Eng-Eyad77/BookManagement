@@ -1,0 +1,34 @@
+### GET All Books
+GET http://localhost:5101/books
+
+
+### GET Book By Id
+GET http://localhost:5101/books/6
+
+
+### CREATE New Book
+POST http://localhost:5101/books/
+Content-Type: application/json
+
+{
+    "name": "Arrow",
+    "categoryId": 3,
+    "price": 80,
+    "publishedDate": "2018-08-01"
+}
+
+
+### UPDATE book
+PUT http://localhost:5101/books/6
+Content-Type: application/json
+
+{
+    "name": "Arrow",
+    "categoryId": 3,
+    "price": 100,
+    "publishedDate": "2010-10-10"
+}
+
+
+### DELETE a book
+DELETE http://localhost:5101/books/5

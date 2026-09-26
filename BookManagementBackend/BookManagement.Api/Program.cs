@@ -11,5 +11,5 @@ var app = builder.Build();
 app.MigrateDb();
 
 app.MapCategoryEndPoints();
-
+app.MapBookEndPoints();
 app.Run();

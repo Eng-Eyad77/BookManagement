@@ -42,7 +42,7 @@ public static class CategoryEndPoints
         }
 
        )
-       .WithName(GetCategoryById); // to store the endpoint into asp without the end point url "internal name"
+       .WithName(GetCategoryById); // to store the endpoint into asp without the endPoint url "internal name"
 
         //POST /Categories
         group.MapPost("/", async (CreateCategoryDto newCategory, BookManagementContext dbContext)

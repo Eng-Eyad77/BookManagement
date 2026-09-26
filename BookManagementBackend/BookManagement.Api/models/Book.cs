@@ -8,7 +8,7 @@ public class Book
 
     public decimal Price { get; set; }
 
-    public Category? Category { get; set; }
+    public Category Category { get; set; } = null!; // must to fill the category
     public DateOnly PublishedDate { get; set; }
 
     public int CategoryId { get; set; }
