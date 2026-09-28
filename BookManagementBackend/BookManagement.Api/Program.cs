@@ -8,8 +8,10 @@ builder.Services.AddControllers();
 
 builder.AddBookManagementDb(); // must be above var app = builder.Build();
 
-var app = builder.Build();
+builder.AddBookManagementCors();
 
+var app = builder.Build();
+app.UseCors("_myAllowSpecificOrigins");
 app.MigrateDb();
 
 // Map attribute-routed controller actions such as [HttpGet] and [HttpPost].

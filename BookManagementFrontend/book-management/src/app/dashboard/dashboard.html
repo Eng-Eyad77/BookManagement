@@ -1,0 +1,74 @@
+<section class="dashboard" aria-labelledby="dashboard-heading">
+  <h2 id="dashboard-heading" class="visually-hidden">Dashboard overview</h2>
+
+  <div class="summary-grid">
+    <article class="summary-card">
+      <span class="summary-icon book-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4v14a4 4 0 0 0-4-4H3Z"/><path d="M21 18a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1h-5a4 4 0 0 0-4 4v14a4 4 0 0 1 4-4h5Z"/></svg></span>
+      <div>
+        @if (isLoading()) { <p class="summary-value summary-loading">...</p> } @else if (loadError()) { <p class="summary-value">—</p> } @else { <p class="summary-value">{{ books().length }}</p> }
+        <p class="summary-title">Total Books</p>
+        <p class="summary-note">{{ isLoading() ? 'Loading library...' : loadError() ? 'Unavailable' : (books().length === 1 ? '1 title in library' : books().length + ' titles in library') }}</p>
+      </div>
+    </article>
+    <article class="summary-card">
+      <span class="summary-icon category-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M20.59 13.41 13.41 20.59a2 2 0 0 1-2.82 0L3.41 13.41A2 2 0 0 1 2.83 12V5a2 2 0 0 1 2-2h7a2 2 0 0 1 1.41.59l7.35 7.35a2 2 0 0 1 0 2.47Z"/><circle cx="7.5" cy="7.5" r="1.25"/></svg></span>
+      <div>
+        @if (isLoading()) { <p class="summary-value summary-loading">...</p> } @else if (loadError()) { <p class="summary-value">—</p> } @else { <p class="summary-value">{{ categories().length }}</p> }
+        <p class="summary-title">Categories</p>
+        <p class="summary-note">{{ isLoading() ? 'Loading categories...' : loadError() ? 'Unavailable' : (categories().length === 1 ? '1 active category' : categories().length + ' active categories') }}</p>
+      </div>
+    </article>
+  </div>
+
+  <div class="dashboard-grid">
+    <section class="panel books-panel" aria-labelledby="books-heading">
+      <header class="panel-header">
+        <div>
+          <h2 id="books-heading">Recently Published Books</h2>
+          <p>Latest titles by published date</p>
+        </div>
+        <a routerLink="/books">View all <span aria-hidden="true">→</span></a>
+      </header>
+      @if (isLoading()) {
+        <div class="empty-state"><span class="loading-spinner" aria-hidden="true"></span><p>Loading books...</p></div>
+      } @else if (loadError()) {
+        <div class="empty-state error-state"><p>{{ loadError() }}</p><button class="secondary-button" type="button" (click)="retryLoading()" [disabled]="isLoading()">Try again</button></div>
+      } @else if (recentBooks().length === 0) {
+        <div class="empty-state"><span class="empty-icon book-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4v14a4 4 0 0 0-4-4H3Z"/><path d="M21 18a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1h-5a4 4 0 0 0-4 4v14a4 4 0 0 1 4-4h5Z"/></svg></span><p>No recently published books.</p></div>
+      } @else {
+        <div class="data-list">
+          @for (book of recentBooks(); track book.id) {
+            <a class="data-row" [routerLink]="['/books', book.id]">
+              <span class="empty-icon book-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4v14a4 4 0 0 0-4-4H3Z"/><path d="M21 18a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1h-5a4 4 0 0 0-4 4v14a4 4 0 0 1 4-4h5Z"/></svg></span>
+              <span class="data-name"><strong>{{ book.name }}</strong><small>{{ book.categoryName }}</small></span>
+              <span class="data-meta"><strong>{{ book.price | currency }}</strong><small>{{ book.publishedDate | date: 'MMM d, y' }}</small></span>
+            </a>
+          }
+        </div>
+      }
+    </section>
+
+    <section class="panel categories-panel" aria-labelledby="categories-heading">
+      <header class="panel-header">
+        <div>
+          <h2 id="categories-heading">Categories</h2>
+          <p>Organize your library</p>
+        </div>
+        <a routerLink="/categories">Manage <span aria-hidden="true">→</span></a>
+      </header>
+      @if (isLoading()) {
+        <div class="empty-state"><span class="loading-spinner" aria-hidden="true"></span><p>Loading categories...</p></div>
+      } @else if (loadError()) {
+        <div class="empty-state error-state"><p>{{ loadError() }}</p><button class="secondary-button" type="button" (click)="retryLoading()" [disabled]="isLoading()">Try again</button></div>
+      } @else if (categoryBookCounts().length === 0) {
+        <div class="empty-state"><span class="empty-icon category-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M20.59 13.41 13.41 20.59a2 2 0 0 1-2.82 0L3.41 13.41A2 2 0 0 1 2.83 12V5a2 2 0 0 1 2-2h7a2 2 0 0 1 1.41.59l7.35 7.35a2 2 0 0 1 0 2.47Z"/><circle cx="7.5" cy="7.5" r="1.25"/></svg></span><p>No categories to display yet.</p></div>
+      } @else {
+        <div class="data-list category-list">
+          @for (categoryData of categoryBookCounts(); track categoryData.category.id) {
+            <div class="data-row"><span class="category-name">{{ categoryData.category.name }}</span><span class="category-count">{{ categoryData.bookCount }} {{ categoryData.bookCount === 1 ? 'book' : 'books' }}</span></div>
+          }
+        </div>
+      }
+    </section>
+  </div>
+</section>

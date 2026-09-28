@@ -1,0 +1,37 @@
+<section class="book-form-page" aria-labelledby="book-form-title">
+  <a class="back-link" routerLink="/books">‹ <span>Back to Books</span></a>
+
+  @if (isLoading()) {
+    <section class="state-panel"><span class="spinner" aria-hidden="true"></span><p>{{ isEdit() ? 'Loading book...' : 'Loading categories...' }}</p></section>
+  } @else if (loadError(); as error) {
+    <section class="state-panel error-state" role="alert"><p>{{ error }}</p><button class="secondary-button" type="button" (click)="retryLoading()" [disabled]="isLoading()">Try again</button><button class="secondary-button" type="button" (click)="cancel()" [disabled]="isSaving()">Back to Books</button></section>
+  } @else {
+    <section class="form-card">
+      <header class="form-header"><span class="form-icon" aria-hidden="true">{{ isEdit() ? '✎' : '+' }}</span><div><h2 id="book-form-title">{{ isEdit() ? 'Edit Book' : 'Add New Book' }}</h2><p>{{ isEdit() ? 'Update the details for this book.' : 'Fill in the details to add a new book to the catalog.' }}</p></div></header>
+      <form [formGroup]="bookForm" (ngSubmit)="submitBook()" novalidate>
+        @if (saveError(); as error) { <div class="form-error" role="alert">{{ error }}</div> }
+        <label for="book-name">Book Name <span>*</span></label>
+        <input id="book-name" type="text" formControlName="name" maxlength="50" placeholder="e.g. The Great Gatsby" [class.invalid]="bookForm.controls.name.invalid && bookForm.controls.name.touched" />
+        @if (bookForm.controls.name.hasError('required') && bookForm.controls.name.touched) { <p class="validation-message">Book name is required.</p> } @else if (bookForm.controls.name.hasError('maxlength')) { <p class="validation-message">Book name must be 50 characters or fewer.</p> }
+
+        <label for="book-category">Category <span>*</span></label>
+        <select id="book-category" formControlName="categoryId" [class.invalid]="bookForm.controls.categoryId.invalid && bookForm.controls.categoryId.touched">
+          <option [ngValue]="0">Select a category...</option>
+          @for (category of categories(); track category.id) { <option [ngValue]="category.id">{{ category.name }}</option> }
+        </select>
+        @if (bookForm.controls.categoryId.invalid && bookForm.controls.categoryId.touched) { <p class="validation-message">Please select a category.</p> }
+
+        <label for="book-price">Price <span>*</span></label>
+        <input id="book-price" type="number" formControlName="price" min="1" max="1000" step="0.01" placeholder="0.00" [class.invalid]="bookForm.controls.price.invalid && bookForm.controls.price.touched" />
+        <p class="field-hint">Enter the price in USD</p>
+        @if (bookForm.controls.price.invalid && bookForm.controls.price.touched) { <p class="validation-message">Price must be between 1 and 1000.</p> }
+
+        <label for="published-date">Published Date <span>*</span></label>
+        <input id="published-date" type="date" formControlName="publishedDate" [class.invalid]="bookForm.controls.publishedDate.invalid && bookForm.controls.publishedDate.touched" />
+        @if (bookForm.controls.publishedDate.invalid && bookForm.controls.publishedDate.touched) { <p class="validation-message">Published date is required.</p> }
+
+        <div class="form-actions"><button class="secondary-button" type="button" (click)="cancel()" [disabled]="isSaving()">Cancel</button><button class="primary-button" type="submit" [disabled]="isSaving()">@if (isSaving()) { Saving... } @else { {{ isEdit() ? 'Save Changes' : 'Create Book' }} }</button></div>
+      </form>
+    </section>
+  }
+</section>

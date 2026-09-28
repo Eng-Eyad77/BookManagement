@@ -1,0 +1,113 @@
+<section class="categories-page" aria-labelledby="categories-title">
+  <div class="page-heading">
+    <div>
+      <h2 id="categories-title">Categories</h2>
+      <p>Organize your books by category. Add and manage topic groups here.</p>
+    </div>
+    <button class="primary-button" type="button" (click)="openCreateModal()">
+      <span aria-hidden="true">+</span> Add Category
+    </button>
+  </div>
+
+  @if (feedback(); as message) {
+    <div class="feedback" [class.success]="message.type === 'success'" [class.error]="message.type === 'error'" role="status">
+      <span>{{ message.message }}</span>
+      <button type="button" aria-label="Dismiss message" (click)="clearFeedback()">×</button>
+    </div>
+  }
+
+  @if (isLoading()) {
+    <section class="state-panel" aria-live="polite">
+      <span class="spinner" aria-hidden="true"></span>
+      <p>Loading categories...</p>
+    </section>
+  } @else if (loadError(); as error) {
+    <section class="state-panel error-state" role="alert">
+      <p>{{ error }}</p>
+      <button class="secondary-button" type="button" (click)="retryLoading()">Try again</button>
+    </section>
+  } @else if (categories().length === 0) {
+    <section class="state-panel empty-state">
+      <span class="state-icon" aria-hidden="true">◇</span>
+      <h3>No categories yet</h3>
+      <p>Create your first category to get started.</p>
+      <button class="primary-button" type="button" (click)="openCreateModal()">Add Category</button>
+    </section>
+  } @else {
+    <section class="category-table" aria-label="Categories list">
+      <div class="table-row table-heading" role="row">
+        <span>Category name</span>
+        <span>Books</span>
+        <span>Actions</span>
+      </div>
+      @for (categoryData of categoryBookCounts(); track categoryData.category.id) {
+        <div class="table-row" role="row">
+          <div class="category-name"><span class="category-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M20.59 13.41 13.41 20.59a2 2 0 0 1-2.82 0L3.41 13.41A2 2 0 0 1 2.83 12V5a2 2 0 0 1 2-2h7a2 2 0 0 1 1.41.59l7.35 7.35a2 2 0 0 1 0 2.47Z"/><circle cx="7.5" cy="7.5" r="1.25"/></svg></span>{{ categoryData.category.name }}</div>
+          <span class="book-count">{{ categoryData.bookCount }} {{ categoryData.bookCount === 1 ? 'book' : 'books' }}</span>
+          <div class="actions">
+            <button type="button" class="icon-button" [attr.aria-label]="'Edit ' + categoryData.category.name" (click)="openEditModal(categoryData.category)">✎</button>
+            <button type="button" class="icon-button delete-action" [attr.aria-label]="'Delete ' + categoryData.category.name" (click)="openDeleteModal(categoryData.category)"><svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>
+          </div>
+        </div>
+      }
+    </section>
+  }
+</section>
+
+@if (modal() === 'create' || modal() === 'edit') {
+  <div class="modal-backdrop" role="presentation" (click)="closeModal()">
+    <section class="modal" role="dialog" aria-modal="true" [attr.aria-labelledby]="modal() === 'create' ? 'create-title' : 'edit-title'" (click)="$event.stopPropagation()">
+      <header class="modal-header">
+        <h2 [id]="modal() === 'create' ? 'create-title' : 'edit-title'">{{ modal() === 'create' ? 'Add Category' : 'Edit Category' }}</h2>
+        <button type="button" class="close-button" aria-label="Close dialog" (click)="closeModal()" [disabled]="isFormLoading() || isSaving()">×</button>
+      </header>
+
+      @if (isFormLoading()) {
+        <div class="modal-loading"><span class="spinner" aria-hidden="true"></span> Loading category...</div>
+      } @else if (editLoadError(); as error) {
+        <div class="modal-error" role="alert"><p>{{ error }}</p><button type="button" class="secondary-button" (click)="retryEditLoading()" [disabled]="isFormLoading()">Try again</button></div>
+      } @else {
+        <form [formGroup]="categoryForm" (ngSubmit)="submitCategory()" novalidate>
+          @if (modal() === 'create' && createError(); as error) { <div class="modal-error" role="alert"><p>{{ error }}</p></div> }
+          @if (modal() === 'edit' && updateError(); as error) { <div class="modal-error" role="alert"><p>{{ error }}</p></div> }
+          <label for="category-name">Category Name <span>*</span></label>
+          <input id="category-name" type="text" formControlName="name" maxlength="50" placeholder="e.g. Science Fiction" [class.invalid]="categoryForm.controls.name.invalid && categoryForm.controls.name.touched" />
+          <div class="form-hint">
+            <span>{{ categoryForm.controls.name.value.length }}/50 characters</span>
+            @if (categoryForm.controls.name.hasError('required') && categoryForm.controls.name.touched) {
+              <span class="validation-message">Category name is required.</span>
+            } @else if (categoryForm.controls.name.hasError('maxlength')) {
+              <span class="validation-message">Category name must be 50 characters or fewer.</span>
+            }
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="secondary-button" (click)="closeModal()" [disabled]="isSaving()">Cancel</button>
+            <button type="submit" class="primary-button" [disabled]="isSaving()">
+              @if (isSaving()) { <span class="button-spinner" aria-hidden="true"></span> Saving... }
+              @else { {{ modal() === 'create' ? 'Create Category' : 'Save Changes' }} }
+            </button>
+          </div>
+        </form>
+      }
+    </section>
+  </div>
+}
+
+@if (modal() === 'delete' && selectedCategory(); as category) {
+  <div class="modal-backdrop" role="presentation" (click)="closeModal()">
+    <section class="modal delete-modal" role="dialog" aria-modal="true" aria-labelledby="delete-title" (click)="$event.stopPropagation()">
+      <header class="modal-header">
+        <h2 id="delete-title">Delete Category?</h2>
+        <button type="button" class="close-button" aria-label="Close dialog" (click)="closeModal()" [disabled]="isDeleting()">×</button>
+      </header>
+      <p>Are you sure you want to delete <strong>"{{ category.name }}"</strong>?</p>
+      @if (deleteError(); as error) { <div class="modal-error" role="alert"><p>{{ error }}</p></div> }
+      <div class="modal-actions">
+        <button type="button" class="secondary-button" (click)="closeModal()" [disabled]="isDeleting()">Cancel</button>
+        <button type="button" class="danger-button" (click)="confirmDelete()" [disabled]="isDeleting()">
+          @if (isDeleting()) { <span class="button-spinner" aria-hidden="true"></span> Deleting... } @else { Delete }
+        </button>
+      </div>
+    </section>
+  </div>
+}

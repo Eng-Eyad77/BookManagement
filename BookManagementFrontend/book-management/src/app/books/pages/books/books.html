@@ -1,0 +1,62 @@
+<section class="books-page" aria-labelledby="books-title">
+  <div class="page-heading">
+    <div>
+      <h2 id="books-title">Books</h2>
+      <p>Manage your book catalog. Add, view, edit and remove titles.</p>
+    </div>
+    <a class="primary-button" routerLink="/books/new"><span aria-hidden="true">+</span> Add Book</a>
+  </div>
+
+  @if (feedback(); as message) {
+    <div class="feedback" role="status">{{ message }}</div>
+  }
+
+  @if (isLoading()) {
+    <section class="state-panel" aria-live="polite"><span class="spinner" aria-hidden="true"></span><p>Loading books...</p></section>
+  } @else if (loadError(); as error) {
+    <section class="state-panel error-state" role="alert"><p>{{ error }}</p><button class="secondary-button" type="button" (click)="retryLoading()" [disabled]="isLoading()">Try again</button></section>
+  } @else if (books().length === 0) {
+    <section class="state-panel"><span class="state-icon" aria-hidden="true">▤</span><h3>No books yet</h3><p>Add your first book to get started.</p><a class="primary-button" routerLink="/books/new">Add Book</a></section>
+  } @else {
+    <div class="list-toolbar">
+      <label class="search-field">
+        <span aria-hidden="true">⌕</span>
+        <span class="visually-hidden">Search books or categories</span>
+        <input type="search" placeholder="Search books or categories..." [value]="searchTerm()" (input)="updateSearch($event)" />
+      </label>
+      <span class="book-count">{{ books().length }} {{ books().length === 1 ? 'book' : 'books' }}</span>
+    </div>
+
+    @if (filteredBooks().length === 0) {
+      <section class="state-panel search-empty"><h3>No books found</h3><p>Try a different title or category.</p></section>
+    } @else {
+      <section class="book-table" aria-label="Books list">
+        <div class="table-row table-heading"><span>Book name</span><span>Category</span><span>Price</span><span>Published</span><span>Actions</span></div>
+        @for (book of filteredBooks(); track book.id) {
+          <div class="table-row">
+            <div class="book-name"><span class="book-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4v14a4 4 0 0 0-4-4H3Z"/><path d="M21 18a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1h-5a4 4 0 0 0-4 4v14a4 4 0 0 1 4-4h5Z"/></svg></span>{{ book.name }}</div>
+            <span class="category-pill">{{ book.categoryName }}</span>
+            <span class="price">{{ book.price | currency }}</span>
+            <span class="published-date">{{ formatDate(book.publishedDate) }}</span>
+            <div class="actions">
+              <a class="icon-button" [routerLink]="['/books', book.id]" [attr.aria-label]="'View ' + book.name"><svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M2.25 12s3.5-5.25 9.75-5.25S21.75 12 21.75 12 18.25 17.25 12 17.25 2.25 12 2.25 12Z"/><circle cx="12" cy="12" r="2.5"/></svg></a>
+              <a class="icon-button" [routerLink]="['/books', book.id, 'edit']" [attr.aria-label]="'Edit ' + book.name">✎</a>
+              <button type="button" class="icon-button delete-action" [attr.aria-label]="'Delete ' + book.name" (click)="openDeleteDialog(book)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>
+            </div>
+          </div>
+        }
+      </section>
+    }
+  }
+</section>
+
+@if (showDeleteDialog() && selectedBook(); as book) {
+  <div class="modal-backdrop" role="presentation" (click)="closeDeleteDialog()">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="delete-book-title" (click)="$event.stopPropagation()">
+      <header class="modal-header"><h2 id="delete-book-title">Delete Book?</h2><button type="button" class="close-button" aria-label="Close dialog" (click)="closeDeleteDialog()">×</button></header>
+      <p>Are you sure you want to delete <strong>"{{ book.name }}"</strong>? This action cannot be undone.</p>
+      @if (deleteError(); as error) { <div class="delete-error" role="alert">{{ error }}</div> }
+      <div class="modal-actions"><button type="button" class="secondary-button" (click)="closeDeleteDialog()" [disabled]="isDeleting()">Cancel</button><button type="button" class="danger-button" (click)="confirmDelete()" [disabled]="isDeleting()">@if (isDeleting()) { Deleting... } @else { Delete }</button></div>
+    </section>
+  </div>
+}

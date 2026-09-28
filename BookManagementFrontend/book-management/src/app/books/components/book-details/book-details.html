@@ -1,0 +1,18 @@
+<section class="details-page" aria-labelledby="details-title">
+  <a class="back-link" routerLink="/books">‹ <span>Back to Books</span></a>
+  @if (isLoading()) {
+    <section class="state-panel"><span class="spinner" aria-hidden="true"></span><p>Loading book...</p></section>
+  } @else if (loadError(); as error) {
+    <section class="state-panel error-state" role="alert"><p>{{ error }}</p><button class="secondary-button" type="button" (click)="retryLoading()" [disabled]="isLoading()">Try again</button><a class="secondary-button" routerLink="/books">Back to Books</a></section>
+  } @else if (book(); as currentBook) {
+    <div class="details-actions"><a class="secondary-button" [routerLink]="['/books', currentBook.id, 'edit']">✎ Edit</a><button class="danger-button" type="button" (click)="openDeleteDialog()">Delete</button></div>
+    <section class="details-card">
+      <div class="details-title"><span class="book-icon" aria-hidden="true">▤</span><div><h2 id="details-title">{{ currentBook.name }}</h2><span class="category-pill">{{ currentBook.categoryName }}</span></div></div>
+      <div class="details-grid"><div><span>Book Name</span><strong>{{ currentBook.name }}</strong></div><div><span>Category</span><strong>{{ currentBook.categoryName }}</strong></div><div><span>Price</span><strong>{{ formatPrice(currentBook.price) }}</strong></div><div><span>Published Date</span><strong>{{ formatDate(currentBook.publishedDate) }}</strong></div></div>
+    </section>
+  }
+</section>
+
+@if (showDeleteDialog() && book(); as currentBook) {
+  <div class="modal-backdrop" role="presentation" (click)="closeDeleteDialog()"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="delete-book-title" (click)="$event.stopPropagation()"><header><h2 id="delete-book-title">Delete Book?</h2><button type="button" aria-label="Close dialog" (click)="closeDeleteDialog()" [disabled]="isDeleting()">×</button></header><p>Are you sure you want to delete <strong>"{{ currentBook.name }}"</strong>? This action cannot be undone.</p>@if (deleteError(); as error) { <div class="delete-error" role="alert">{{ error }}</div> }<div class="modal-actions"><button class="secondary-button" type="button" (click)="closeDeleteDialog()" [disabled]="isDeleting()">Cancel</button><button class="danger-button" type="button" (click)="confirmDelete()" [disabled]="isDeleting()">@if (isDeleting()) { Deleting... } @else { Delete }</button></div></section></div>
+}
